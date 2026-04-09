@@ -2,26 +2,20 @@ pipeline {
     agent any
 
     stages {
-        stage('Checkout Code') {
-            steps {
-                git 'https://github.com/tahmad1122/Newman-API-Automation-Jenkins.git'
-            }
-        }
-
         stage('Install Newman') {
             steps {
-                sh 'npm install -g newman newman-reporter-htmlextra'
+                bat 'npm install -g newman newman-reporter-htmlextra'
             }
         }
 
         stage('Run Postman Collection') {
             steps {
-                sh '''
-                   mkdir -p reports
-                   newman run collection.json \
-                   -e LoginEnv.postman_environment.json \
-                   -r cli,htmlextra \
-                   --reporter-htmlextra-export reports/newman-report.html
+                bat '''
+                mkdir reports
+                newman run collection.json ^
+                -e LoginEnv.postman_environment.json ^
+                -r cli,htmlextra ^
+                --reporter-htmlextra-export reports\\newman-report.html
                 '''
             }
         }
@@ -30,7 +24,6 @@ pipeline {
     post {
         always {
             archiveArtifacts artifacts: 'reports/*.html', fingerprint: true
-            echo 'Postman report archived!'
         }
     }
 }
